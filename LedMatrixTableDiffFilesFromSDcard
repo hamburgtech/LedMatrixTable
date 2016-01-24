@@ -5,6 +5,9 @@ must be named myanim1.dat, the second file myanim2.dat and so on. You have to ch
 This programm will open the first file, when all data is displayed, it will open the next
 file and go on like this. When all files have been displayed, the programm will start with
 file one again.
+visit: https://www.youtube.com/channel/UCbibsYIyZlsF0RxVMZVA52w for more information
+
+www.hamburgtech.de
 */
 
 #include <FastLED.h>
