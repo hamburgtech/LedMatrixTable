@@ -1,4 +1,11 @@
-
+/* Use this sketch to control an LED Matrix table or an LED matrix or just an LED strip.
+You can record files with the Glediator software and put them on a sdcard. The first file
+must be named myanim1.dat, the second file myanim2.dat and so on. You have to change the
+"int fileNumber = 9;" to the number of files you have stored on your sdcard.
+This programm will open the first file, when all data is displayed, it will open the next
+file and go on like this. When all files have been displayed, the programm will start with
+file one again.
+*/
 
 #include <FastLED.h>
 #include <SPI.h>
