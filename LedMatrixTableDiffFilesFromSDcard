@@ -1,0 +1,97 @@
+
+
+#include <FastLED.h>
+#include <SPI.h>
+#include <SD.h>
+
+#define NUM_LEDS 121          // LED number, change to yours
+#define DATA_PIN 6            // datapin for LEDs
+#define CHIPSET WS2811        // the used LED type, change if you use other (this type is also okay for WS2812B)
+#define CMD_NEW_DATA 1
+
+int fileNumber = 9;  // change this number to the number of files on your sdcard <- <- <- <- <- <- <- <- <- <- <- <- <- <- <- <- <- <- <- <- <- 
+
+//#define BAUD_RATE 500000  //if using Glediator via serial
+
+int fileCounter = 1; // don't change this
+String fileNameStart = "myanim";   //the first file must be named myanim1.dat, the second file myanim2.dat .... myanim10.dat and so on
+String fileNameEnd  = ".dat";      // here you are able to change the file ending, but you won't have to
+char fileNameChar[12];
+
+
+
+File fxdata;
+CRGB leds[NUM_LEDS];
+
+void setup()
+{
+  FastLED.addLeds<CHIPSET, DATA_PIN>(leds, NUM_LEDS); //see doc for different LED strips
+//  Serial.begin(BAUD_RATE); // when using Glediator via usb
+  Serial.begin(115200);
+  
+  for(int y = 0 ; y < NUM_LEDS ; y++) 
+  {
+    leds[y] = CRGB::Black; // set all leds to black during setup
+  }
+  FastLED.show();
+
+  pinMode(10, OUTPUT); // CS/SS pin as output for SD library to work.
+  digitalWrite(10, HIGH); // workaround for sdcard failed error...
+
+  if (!SD.begin(4))
+  {
+    Serial.println("sdcard initialization failed!");
+    return;
+  }
+  Serial.println("sdcard initialization done.");
+  
+  // test file open
+  fxdata = SD.open("myanim1.dat");  // read only
+  if (fxdata)
+  {
+    Serial.println("file open ok");      
+    fxdata.close();
+  }
+}
+
+int serialGlediator ()
+{
+  while (!Serial.available()) {}
+  return Serial.read();
+}
+
+void loop()
+{
+
+
+  if (fileCounter > fileNumber){      // if counter is bigger than file number it gets reset to 1 and programm starts to open file 1 and repeats
+  fileCounter = 1;
+  }
+  
+  String fileName = fileNameStart + fileCounter + fileNameEnd;  // combine the filename
+  fileName.toCharArray(fileNameChar, 12);                       // change String to char, SD library only supports char
+
+  Serial.println(fileNameChar);                                // print for debugging
+  
+  fxdata = SD.open(fileNameChar);  // read only                // open the file
+  if (fxdata)
+    {
+      Serial.println("file open ok");  
+      Serial.print(" Opening file number: ");
+      Serial.println(fileCounter);
+      
+      
+    }
+
+  while (fxdata.available())                                               //sent data to the LEDs
+  {
+    fxdata.readBytes((char*)leds, NUM_LEDS*3);
+    FastLED.show();
+    delay(50); // set the speed of the animation. 20 is appx ~ 500k bauds
+  }
+  
+  // close the file in order to prevent hanging IO or similar throughout time
+  fxdata.close();
+  fileCounter++; // add one to fileNumber
+  
+}
